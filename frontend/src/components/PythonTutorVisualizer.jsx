@@ -8,7 +8,7 @@ export default function PythonTutorVisualizer({ stepData }) {
   const frames = stepData ? (stepData.frames || []) : [];
   const heap = stepData ? (stepData.heap || {}) : {};
   const stdout = stepData ? (stepData.stdout || '') : '';
-  const returnVal = stepData ? stepData.return_value : None;
+  const returnVal = stepData ? stepData.return_value : null;
 
   // Calculate SVG arrow paths from socket elements to target heap cards
   const updatePointers = () => {
