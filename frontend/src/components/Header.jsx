@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, Sparkles, Code2, Key, RefreshCw, HelpCircle } from 'lucide-react';
+import { Play, Sparkles, Code2, Key, RefreshCw, GitBranch } from 'lucide-react';
 
 export default function Header({
   onVisualize,
@@ -9,9 +9,11 @@ export default function Header({
   onToggleAiDrawer,
   apiKey,
   onOpenApiKeyModal,
-  hasSteps
+  onPushToGithub,
+  isPushing
 }) {
   const PRESETS = [
+    { id: 'minarrows', name: 'Min Arrow Shots (Points)' },
     { id: 'twosum', name: 'Two Sum (Hash Map)' },
     { id: 'bubblesort', name: 'Bubble Sort' },
     { id: 'binarysearch', name: 'Binary Search' },
@@ -19,49 +21,49 @@ export default function Header({
   ];
 
   return (
-    <header className="glass-panel" style={{
-      height: '60px',
+    <header className="minimal-card" style={{
+      height: '56px',
       margin: '12px 16px 0 16px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0 20px',
+      padding: '0 18px',
       zIndex: 50
     }}>
-      {/* Brand / Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      {/* Brand Logo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '10px',
-          background: 'linear-gradient(135deg, #8b5cf6, #38bdf8)',
+          width: '32px',
+          height: '32px',
+          borderRadius: '8px',
+          background: 'var(--accent-red)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 0 15px rgba(139, 92, 246, 0.4)'
+          boxShadow: '0 0 12px var(--accent-red-glow)'
         }}>
-          <Code2 size={20} color="#fff" />
+          <Code2 size={18} color="#fff" />
         </div>
         <div>
-          <h1 style={{ fontSize: '1.15rem', fontWeight: 700, letterSpacing: '-0.02em', background: 'linear-gradient(90deg, #fff, #93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            AlgoViz <span style={{ fontSize: '0.75rem', fontWeight: 500, padding: '2px 8px', borderRadius: '12px', background: 'rgba(139, 92, 246, 0.2)', color: '#c4b5fd', border: '1px solid rgba(139, 92, 246, 0.3)', marginLeft: '6px' }}>Python</span>
+          <h1 style={{ fontSize: '1.05rem', fontWeight: 700, letterSpacing: '-0.02em', color: '#fff' }}>
+            AlgoViz <span style={{ fontSize: '0.72rem', fontWeight: 500, padding: '2px 8px', borderRadius: '6px', background: 'var(--accent-red-subtle)', color: 'var(--accent-red)', border: '1px solid rgba(255, 77, 77, 0.3)', marginLeft: '6px' }}>Python Tutor</span>
           </h1>
         </div>
       </div>
 
-      {/* Preset selector */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Examples:</span>
+      {/* Preset Selector */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Preset:</span>
         <select
           value={selectedPreset}
           onChange={(e) => onSelectPreset(e.target.value)}
           style={{
-            background: 'var(--bg-card)',
+            background: 'var(--bg-dark)',
             color: 'var(--text-main)',
-            border: '1px solid var(--border-color)',
+            border: '1px solid var(--border-subtle)',
             borderRadius: '8px',
-            padding: '6px 12px',
-            fontSize: '0.85rem',
+            padding: '5px 10px',
+            fontSize: '0.82rem',
             outline: 'none',
             cursor: 'pointer'
           }}
@@ -74,46 +76,55 @@ export default function Header({
 
       {/* Action Buttons */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        {/* Push to GitHub button */}
+        <button
+          className="btn-minimal"
+          onClick={onPushToGithub}
+          disabled={isPushing}
+          title="Commit & Push changes to GitHub repository"
+        >
+          <GitBranch size={15} color={isPushing ? '#f59e0b' : 'var(--text-muted)'} />
+          {isPushing ? 'Pushing...' : 'Push GitHub'}
+        </button>
+
         {/* API Key Modal Button */}
         <button
-          className="btn-secondary"
+          className="btn-minimal"
           onClick={onOpenApiKeyModal}
           title="Configure Gemini API Key"
-          style={{ fontSize: '0.85rem' }}
         >
-          <Key size={16} color={apiKey ? '#10b981' : '#9ca3af'} />
-          {apiKey ? 'API Key Set' : 'Set Gemini Key'}
+          <Key size={15} color={apiKey ? '#10b981' : '#9ca3af'} />
+          {apiKey ? 'Key Set' : 'Gemini Key'}
         </button>
 
         {/* AI Tutor Drawer Button */}
         <button
-          className="btn-secondary glow-pulse"
+          className="btn-minimal"
           onClick={onToggleAiDrawer}
           style={{
-            borderColor: 'rgba(139, 92, 246, 0.4)',
-            background: 'rgba(139, 92, 246, 0.15)',
-            color: '#c4b5fd',
-            fontSize: '0.85rem'
+            borderColor: 'rgba(255, 77, 77, 0.3)',
+            background: 'var(--accent-red-subtle)',
+            color: '#fff'
           }}
         >
-          <Sparkles size={16} color="#a78bfa" />
-          AI Tutor Chat
+          <Sparkles size={15} color="var(--accent-red)" />
+          AI Tutor
         </button>
 
         {/* Visualize Button */}
         <button
-          className="btn-primary"
+          className="btn-coral"
           onClick={onVisualize}
           disabled={isExecuting}
         >
           {isExecuting ? (
             <>
-              <RefreshCw size={16} className="spin" style={{ animation: 'spin 1s linear infinite' }} />
-              Executing...
+              <RefreshCw size={15} style={{ animation: 'spin 1s linear infinite' }} />
+              Tracing...
             </>
           ) : (
             <>
-              <Play size={16} fill="white" />
+              <Play size={15} fill="white" />
               Visualize Execution
             </>
           )}

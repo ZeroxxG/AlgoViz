@@ -1,12 +1,8 @@
 """
 executor/views.py
 -----------------
-POST /api/execute/
-  Body : { "code": "<python source>" }
-  Returns: { "steps": [...], "error": null }
-
-The user's code is piped to tracer_script.py in an isolated subprocess.
-This keeps the tracer out of Django's process space and enforces a timeout.
+POST /api/execute/ -> Executes user code with sys.settrace
+POST /api/git-push/ -> Commits and pushes changes to GitHub origin main
 """
 
 import json
@@ -17,11 +13,11 @@ from pathlib import Path
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-
 from django.conf import settings
 
 TRACER = Path(__file__).parent / "tracer_script.py"
 TIMEOUT = getattr(settings, "CODE_EXEC_TIMEOUT", 8)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 
 @api_view(["POST"])
@@ -36,7 +32,7 @@ def execute_code(request):
 
     if len(code) > 20_000:
         return Response(
-            {"steps": [], "error": "Code exceeds the 20 000-character limit."},
+            {"steps": [], "error": "Code exceeds the 20,000-character limit."},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
@@ -58,7 +54,6 @@ def execute_code(request):
             status=status.HTTP_408_REQUEST_TIMEOUT,
         )
 
-    # tracer_script writes JSON to stdout on success, nothing on crash
     raw = result.stdout.strip()
 
     if not raw:
@@ -77,3 +72,19 @@ def execute_code(request):
         )
 
     return Response({"steps": steps, "error": None})
+
+
+@api_view(["POST"])
+def push_github(request):
+    try:
+        # git add .
+        subprocess.run(["git", "add", "."], cwd=str(PROJECT_ROOT), check=True)
+        # git commit
+        msg = request.data.get("message", "Update AlgoViz Python Tutor memory visualizer and minimal dark UI")
+        subprocess.run(["git", "commit", "-m", msg], cwd=str(PROJECT_ROOT), capture_output=True)
+        # git push
+        push_res = subprocess.run(["git", "push", "origin", "main"], cwd=str(PROJECT_ROOT), capture_output=True, text=True)
+        
+        return Response({"status": "success", "output": push_res.stdout or push_res.stderr})
+    except Exception as exc:
+        return Response({"status": "error", "error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

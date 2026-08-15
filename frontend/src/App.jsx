@@ -10,6 +10,18 @@ import axios from 'axios';
 const BACKEND_URL = 'http://127.0.0.1:8001';
 
 const CODE_PRESETS = {
+  minarrows: `def findMinArrowShots(points):
+    n = len(points)
+    arrows = 2
+    arrow = 12
+    i = 3
+    start = 10
+    return 2
+
+points = [[7, 12], [1, 6], [2, 8], [10, 16]]
+ans = findMinArrowShots(points)
+print("Return value:", ans)
+`,
   twosum: `def twoSum(nums, target):
     seen = {}
     for i, num in enumerate(nums):
@@ -60,30 +72,29 @@ print("Found at index:", idx)
         return 1
     return fibonacci(n - 1) + fibonacci(n - 2)
 
-val = fibonacci(5)
-print("Fibonacci(5) =", val)
+val = fibonacci(4)
+print("Fibonacci(4) =", val)
 `
 };
 
 export default function App() {
-  const [selectedPreset, setSelectedPreset] = useState('twosum');
-  const [code, setCode] = useState(CODE_PRESETS.twosum);
+  const [selectedPreset, setSelectedPreset] = useState('minarrows');
+  const [code, setCode] = useState(CODE_PRESETS.minarrows);
   const [steps, setSteps] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
   const [isExecuting, setIsExecuting] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(600); // ms per step
+  const [speed, setSpeed] = useState(600);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isPushing, setIsPushing] = useState(false);
 
   // Modals & Drawers
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState(false);
   const [isApiKeyModalOpen, setIsApiKeyModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState(localStorage.getItem('algoviz_gemini_key') || '');
 
-  // Auto-play timer ref
   const playTimerRef = useRef(null);
 
-  // Preset switch handler
   const handleSelectPreset = (presetId) => {
     setSelectedPreset(presetId);
     if (CODE_PRESETS[presetId]) {
@@ -95,13 +106,11 @@ export default function App() {
     }
   };
 
-  // API Key save
   const handleSaveApiKey = (newKey) => {
     setApiKey(newKey);
     localStorage.setItem('algoviz_gemini_key', newKey);
   };
 
-  // Core execution trigger
   const handleVisualize = async () => {
     setIsExecuting(true);
     setErrorMsg(null);
@@ -113,7 +122,6 @@ export default function App() {
       setSteps(fetchedSteps);
       setCurrentStep(0);
 
-      // Check if tracer caught a runtime exception
       const errorStep = fetchedSteps.find(s => s.event === 'error');
       if (errorStep) {
         setErrorMsg(`Runtime Exception: ${errorStep.error}`);
@@ -127,7 +135,20 @@ export default function App() {
     }
   };
 
-  // Auto-play effect
+  const handlePushToGithub = async () => {
+    setIsPushing(true);
+    try {
+      await axios.post(`${BACKEND_URL}/api/git-push/`, {
+        message: "Update AlgoViz Python Tutor memory visualizer and minimal dark theme UI"
+      });
+      alert("✅ Changes successfully committed & pushed to GitHub (origin main)!");
+    } catch (err) {
+      alert(`❌ Git push error: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setIsPushing(false);
+    }
+  };
+
   useEffect(() => {
     if (isPlaying) {
       playTimerRef.current = setInterval(() => {
@@ -154,7 +175,7 @@ export default function App() {
       overflow: 'hidden',
       background: 'var(--bg-dark)'
     }}>
-      {/* Top Navigation Header */}
+      {/* Minimal Header */}
       <Header
         onVisualize={handleVisualize}
         isExecuting={isExecuting}
@@ -163,25 +184,26 @@ export default function App() {
         onToggleAiDrawer={() => setIsAiDrawerOpen(!isAiDrawerOpen)}
         apiKey={apiKey}
         onOpenApiKeyModal={() => setIsApiKeyModalOpen(true)}
-        hasSteps={steps.length > 0}
+        onPushToGithub={handlePushToGithub}
+        isPushing={isPushing}
       />
 
-      {/* Main Workspace (Split Screen: Code Editor Left | Visualizer Right) */}
+      {/* Main Workspace */}
       <main style={{
         flex: 1,
         display: 'flex',
-        gap: '16px',
+        gap: '14px',
         padding: '12px 16px',
         overflow: 'hidden'
       }}>
         {/* Left Column: Monaco Code Editor */}
-        <div style={{ flex: '0 0 45%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: '0 0 38%', height: '100%', display: 'flex', flexDirection: 'column' }}>
           <Editor
             code={code}
             onChange={(val) => {
               setCode(val);
               if (steps.length > 0) {
-                setSteps([]); // reset trace on edit
+                setSteps([]);
                 setCurrentStep(0);
               }
             }}
@@ -189,17 +211,17 @@ export default function App() {
           />
         </div>
 
-        {/* Right Column: Execution Visualizer */}
+        {/* Right Column: Python Tutor Visualizer */}
         <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
           {errorMsg && (
             <div style={{
               background: 'rgba(239, 68, 68, 0.15)',
               border: '1px solid rgba(239, 68, 68, 0.4)',
               color: '#fca5a5',
-              padding: '10px 14px',
+              padding: '8px 12px',
               borderRadius: '8px',
-              marginBottom: '12px',
-              fontSize: '0.85rem'
+              marginBottom: '10px',
+              fontSize: '0.82rem'
             }}>
               🚨 <strong>Error:</strong> {errorMsg}
             </div>
@@ -229,7 +251,7 @@ export default function App() {
         />
       </div>
 
-      {/* AI Tutor Side Drawer (Phase 2) */}
+      {/* AI Tutor Side Drawer */}
       <ChatDrawer
         isOpen={isAiDrawerOpen}
         onClose={() => setIsAiDrawerOpen(false)}
