@@ -18,9 +18,16 @@ export default function StepControls({
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') {
-        return;
-      }
+      const activeEl = document.activeElement;
+      const isEditing = 
+        activeEl?.tagName === 'TEXTAREA' ||
+        activeEl?.tagName === 'INPUT' ||
+        activeEl?.isContentEditable ||
+        !!e.target?.closest?.('.monaco-editor') ||
+        !!activeEl?.closest?.('.monaco-editor');
+
+      if (isEditing) return;
+
       if (e.key === 'ArrowRight') onNext();
       if (e.key === 'ArrowLeft') onPrev();
       if (e.key === ' ') {
