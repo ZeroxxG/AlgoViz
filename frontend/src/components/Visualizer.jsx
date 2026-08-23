@@ -11,7 +11,7 @@ export default function Visualizer({ code, currentStep, steps }) {
       
       {/* Code Snapshot with Highlighted Active Execution Line */}
       <div className="minimal-card" style={{
-        flex: '0 0 42%',
+        flex: '0 0 36%',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden'
