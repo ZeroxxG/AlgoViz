@@ -46,7 +46,8 @@ export default function StepControls({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: '14px',
-      background: 'var(--bg-surface)'
+      background: 'var(--bg-surface)',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
     }}>
       {/* Step Counter */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '120px' }}>
