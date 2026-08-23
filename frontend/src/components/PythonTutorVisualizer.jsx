@@ -257,7 +257,9 @@ export default function PythonTutorVisualizer({ stepData }) {
                 style={{
                   padding: '10px 14px',
                   minWidth: '120px',
-                  background: 'var(--bg-surface)'
+                  background: 'var(--bg-surface)',
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.45)',
+                  border: '1px solid rgba(255, 255, 255, 0.09)'
                 }}
               >
                 {/* Object Type Tag */}
