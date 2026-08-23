@@ -231,6 +231,7 @@ export default function App() {
             code={code}
             currentStep={currentStep}
             steps={steps}
+            selectedPreset={selectedPreset}
           />
         </div>
       </main>
