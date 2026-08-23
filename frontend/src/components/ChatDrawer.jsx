@@ -69,31 +69,35 @@ export default function ChatDrawer({
   return (
     <div style={{
       position: 'fixed',
-      right: '16px',
+      right: '20px',
       bottom: '16px',
-      top: '84px',
-      width: '420px',
+      height: '320px',
+      width: '440px',
       zIndex: 100,
       display: 'flex',
       flexDirection: 'column',
-      boxShadow: '-10px 0 30px rgba(0,0,0,0.5)'
-    }} className="glass-panel">
+      boxShadow: '0 10px 40px rgba(0,0,0,0.8)',
+      background: 'var(--bg-surface)',
+      border: '1px solid var(--border-subtle)',
+      borderRadius: '14px',
+      overflow: 'hidden'
+    }}>
       
       {/* Drawer Header */}
       <div style={{
-        padding: '14px 16px',
-        borderBottom: '1px solid var(--border-color)',
+        padding: '10px 14px',
+        borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        background: 'rgba(139, 92, 246, 0.15)'
+        background: 'var(--accent-red-subtle)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Sparkles size={18} color="#a78bfa" />
-          <h3 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f3f4f6' }}>Gemini AI Code Tutor</h3>
+          <Sparkles size={16} color="var(--accent-red)" />
+          <h3 style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fff' }}>Gemini AI Code Tutor</h3>
         </div>
         <button className="btn-icon" onClick={onClose}>
-          <X size={18} />
+          <X size={16} />
         </button>
       </div>
 
