@@ -77,14 +77,24 @@ def execute_code(request):
 @api_view(["POST"])
 def push_github(request):
     try:
-        # git add .
         subprocess.run(["git", "add", "."], cwd=str(PROJECT_ROOT), check=True)
-        # git commit
         msg = request.data.get("message", "Update AlgoViz Python Tutor memory visualizer and minimal dark UI")
         subprocess.run(["git", "commit", "-m", msg], cwd=str(PROJECT_ROOT), capture_output=True)
-        # git push
         push_res = subprocess.run(["git", "push", "origin", "main"], cwd=str(PROJECT_ROOT), capture_output=True, text=True)
         
         return Response({"status": "success", "output": push_res.stdout or push_res.stderr})
     except Exception as exc:
         return Response({"status": "error", "error": str(exc)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+def health_check(request):
+    """GET /api/health/ -> Returns backend status, python version, and system metrics."""
+    return Response({
+        "status": "healthy",
+        "service": "AlgoViz Backend Execution & AI Engine",
+        "python_version": sys.version,
+        "max_trace_steps": 500,
+        "timeout_seconds": TIMEOUT,
+        "ast_validator": "active"
+    })
