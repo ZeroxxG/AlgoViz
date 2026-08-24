@@ -1,11 +1,11 @@
 import React from 'react';
-import { Gauge, Cpu, HardDrive } from 'lucide-react';
+import { Gauge, Cpu, HardDrive, Zap } from 'lucide-react';
 
-export default function ComplexityPanel({ code, totalSteps, selectedPreset }) {
-  // Infer complexity based on code features & presets
-  let timeComplexity = 'O(N)';
-  let spaceComplexity = 'O(1)';
-  let complexityExplanation = 'Linear time proportional to input size';
+export default function ComplexityPanel({ code, totalSteps, selectedPreset, executionTimeMs, backendMetrics }) {
+  // Infer or use backend calculated complexity
+  let timeComplexity = backendMetrics ? backendMetrics.time_complexity : 'O(N)';
+  let spaceComplexity = backendMetrics ? backendMetrics.space_complexity : 'O(1)';
+  let complexityExplanation = backendMetrics ? backendMetrics.explanation : 'Linear time proportional to input size';
 
   if (selectedPreset === 'twosum') {
     timeComplexity = 'O(N)';
@@ -23,22 +23,33 @@ export default function ComplexityPanel({ code, totalSteps, selectedPreset }) {
     timeComplexity = 'O(2ⁿ)';
     spaceComplexity = 'O(N)';
     complexityExplanation = 'Exponential recursion tree depth';
-  } else if (code) {
-    if (code.includes('for ') && code.count && code.count('for ') >= 2) {
-      timeComplexity = 'O(N²)';
-      complexityExplanation = 'Nested loops detected';
-    } else if (code.includes('// 2') || code.includes('//2')) {
-      timeComplexity = 'O(log N)';
-      complexityExplanation = 'Divide and conquer halving input';
-    }
   }
 
   return (
     <div className="minimal-card" style={{ padding: '14px 16px', marginBottom: '14px', background: 'var(--bg-surface)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '6px' }}>
-        <Gauge size={15} color="var(--accent-red)" />
-        <h3 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', letterSpacing: '0.02em' }}>Algorithm Complexity</h3>
+      {/* Header with Execution Time Badge */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Gauge size={15} color="var(--accent-red)" />
+          <h3 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', letterSpacing: '0.02em' }}>Algorithm Complexity</h3>
+        </div>
+
+        {executionTimeMs !== undefined && executionTimeMs !== null && (
+          <span style={{
+            fontSize: '0.72rem',
+            fontWeight: 600,
+            color: '#38bdf8',
+            background: 'rgba(56, 189, 248, 0.12)',
+            padding: '2px 8px',
+            borderRadius: '6px',
+            border: '1px solid rgba(56, 189, 248, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            <Zap size={12} color="#38bdf8" /> {executionTimeMs} ms ({totalSteps} steps)
+          </span>
+        )}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>

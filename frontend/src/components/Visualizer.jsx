@@ -95,7 +95,12 @@ export default function Visualizer({ code, currentStep, steps, selectedPreset })
       <div style={{ flex: 1, height: '100%', display: 'flex', flexDirection: 'column', overflowY: 'auto', gap: '12px' }}>
         
         {/* Complexity Panel */}
-        <ComplexityPanel code={code} totalSteps={steps.length} selectedPreset={selectedPreset} />
+        <ComplexityPanel
+          code={code}
+          totalSteps={steps.length}
+          selectedPreset={selectedPreset}
+          executionTimeMs={stepData ? stepData.execution_time_ms : null}
+        />
 
         {/* DSA Pointer Array Visualizer */}
         <DsaPointerVisualizer stepData={stepData} />
