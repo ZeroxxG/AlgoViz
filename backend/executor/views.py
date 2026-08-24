@@ -1,19 +1,23 @@
 """
 executor/views.py
 -----------------
-POST /api/execute/ -> Executes user code with sys.settrace
+POST /api/execute/ -> Validates with AST, executes code under tracer, returns trace + execution metrics
 POST /api/git-push/ -> Commits and pushes changes to GitHub origin main
+GET /api/health/ -> Returns backend operational status
 """
 
 import json
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
+
+from .validator import validate_python_code
 
 TRACER = Path(__file__).parent / "tracer_script.py"
 TIMEOUT = getattr(settings, "CODE_EXEC_TIMEOUT", 8)
@@ -32,9 +36,19 @@ def execute_code(request):
 
     if len(code) > 20_000:
         return Response(
-            {"steps": [], "error": "Code exceeds the 20,000-character limit."},
+            {"steps": [], "error": "Code exceeds 20,000 character limit."},
             status=status.HTTP_400_BAD_REQUEST,
         )
+
+    # Validate Python syntax and restricted imports using AST validator
+    is_valid, validation_err = validate_python_code(code)
+    if not is_valid:
+        return Response(
+            {"steps": [], "error": f"Validation Error: {validation_err}"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    start_time = time.perf_counter()
 
     try:
         result = subprocess.run(
@@ -48,12 +62,12 @@ def execute_code(request):
         return Response(
             {
                 "steps": [],
-                "error": f"Execution timed out after {TIMEOUT} seconds. "
-                         "Check for infinite loops.",
+                "error": f"Execution timed out after {TIMEOUT} seconds. Check for infinite loops.",
             },
             status=status.HTTP_408_REQUEST_TIMEOUT,
         )
 
+    elapsed_ms = round((time.perf_counter() - start_time) * 1000, 2)
     raw = result.stdout.strip()
 
     if not raw:
@@ -71,7 +85,12 @@ def execute_code(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    return Response({"steps": steps, "error": None})
+    return Response({
+        "steps": steps,
+        "execution_time_ms": elapsed_ms,
+        "total_steps": len(steps),
+        "error": None
+    })
 
 
 @api_view(["POST"])
