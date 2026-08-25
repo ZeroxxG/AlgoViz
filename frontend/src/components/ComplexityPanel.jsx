@@ -1,46 +1,162 @@
 import React from 'react';
 import { Gauge, Cpu, HardDrive, Zap, TrendingUp } from 'lucide-react';
 
+function analyzeDynamicCode(codeStr) {
+  if (!codeStr || !codeStr.strip || !codeStr.trim()) {
+    return {
+      time: 'O(1)',
+      space: 'O(1)',
+      pct: 20,
+      color: '#10b981',
+      desc: 'No executable statements'
+    };
+  }
+
+  const lines = codeStr.split('\n');
+  let maxLoopNest = 0;
+  let hasLogarithm = false;
+  let hasHashMap = false;
+  let hasRecursion = false;
+  let funcNames = [];
+
+  // Extract function definitions
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('def ')) {
+      const match = trimmed.match(/def\s+([a-zA-Z0-9_]+)\s*\(/);
+      if (match && match[1]) funcNames.push(match[1]);
+    }
+  });
+
+  // Analyze structure line by line
+  let currentNest = 0;
+  let nestStack = [];
+
+  lines.forEach(line => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+
+    const indent = line.search(/\S/);
+
+    // Maintain loop nest stack by indentation
+    while (nestStack.length > 0 && indent <= nestStack[nestStack.length - 1]) {
+      nestStack.pop();
+    }
+
+    if (trimmed.startsWith('for ') || trimmed.startsWith('while ')) {
+      nestStack.push(indent);
+      if (nestStack.length > maxLoopNest) {
+        maxLoopNest = nestStack.length;
+      }
+    }
+
+    // Check for log patterns
+    if (
+      trimmed.includes('// 2') ||
+      trimmed.includes('//= 2') ||
+      trimmed.includes('>> 1') ||
+      (trimmed.includes('mid') && (trimmed.includes('low') || trimmed.includes('high')))
+    ) {
+      hasLogarithm = true;
+    }
+
+    // Check for Hash Map / Set usage
+    if (
+      trimmed.includes('seen') ||
+      trimmed.includes('dict(') ||
+      trimmed.includes('set(') ||
+      trimmed.includes('{}') ||
+      (trimmed.includes('in ') && (trimmed.includes('{') || trimmed.includes('dict')))
+    ) {
+      hasHashMap = true;
+    }
+
+    // Check for recursive function call
+    funcNames.forEach(fn => {
+      if (trimmed.includes(`${fn}(`) && !trimmed.startsWith('def ')) {
+        hasRecursion = true;
+      }
+    });
+  });
+
+  // Calculate Big-O metrics based on dynamic analysis
+  if (hasRecursion) {
+    return {
+      time: 'O(2ⁿ)',
+      space: 'O(N)',
+      pct: 100,
+      color: '#ef4444',
+      desc: 'Recursive function tree execution detected (exponential call stack)'
+    };
+  }
+
+  if (maxLoopNest >= 3) {
+    return {
+      time: 'O(N³)',
+      space: 'O(1)',
+      pct: 95,
+      color: '#f43f5e',
+      desc: `Triple nested loop structure detected (${maxLoopNest} levels deep)`
+    };
+  }
+
+  if (maxLoopNest === 2) {
+    return {
+      time: 'O(N²)',
+      space: 'O(1)',
+      pct: 85,
+      color: '#f97316',
+      desc: 'Nested loops detected (quadratic operations count)'
+    };
+  }
+
+  if (maxLoopNest === 1) {
+    if (hasLogarithm) {
+      return {
+        time: 'O(N log N)',
+        space: 'O(1)',
+        pct: 70,
+        color: '#f59e0b',
+        desc: 'Linear loop with logarithmic sub-division'
+      };
+    }
+    return {
+      time: 'O(N)',
+      space: hasHashMap ? 'O(N)' : 'O(1)',
+      pct: 60,
+      color: '#f59e0b',
+      desc: hasHashMap ? 'Single pass loop with Hash Map O(N) auxiliary space' : 'Single loop traversal (linear time)'
+    };
+  }
+
+  if (hasLogarithm) {
+    return {
+      time: 'O(log N)',
+      space: 'O(1)',
+      pct: 40,
+      color: '#38bdf8',
+      desc: 'Logarithmic search space reduction per step'
+    };
+  }
+
+  return {
+    time: 'O(1)',
+    space: 'O(1)',
+    pct: 20,
+    color: '#10b981',
+    desc: 'Constant time operations (sequential execution without loops)'
+  };
+}
+
 export default function ComplexityPanel({ code, totalSteps, selectedPreset, executionTimeMs, backendMetrics }) {
-  let timeComplexity = backendMetrics ? backendMetrics.time_complexity : 'O(N)';
-  let spaceComplexity = backendMetrics ? backendMetrics.space_complexity : 'O(1)';
-  let complexityExplanation = backendMetrics ? backendMetrics.explanation : 'Linear time proportional to input size';
+  // Compute dynamic analysis on user code
+  const dynamicMetrics = analyzeDynamicCode(code);
 
-  if (selectedPreset === 'twosum') {
-    timeComplexity = 'O(N)';
-    spaceComplexity = 'O(N)';
-    complexityExplanation = 'Single pass with Hash Map lookup O(1)';
-  } else if (selectedPreset === 'bubblesort') {
-    timeComplexity = 'O(N²)';
-    spaceComplexity = 'O(1)';
-    complexityExplanation = 'Nested comparison loops (Quadratic Time)';
-  } else if (selectedPreset === 'binarysearch') {
-    timeComplexity = 'O(log N)';
-    spaceComplexity = 'O(1)';
-    complexityExplanation = 'Logarithmic search halving search space each step';
-  } else if (selectedPreset === 'fibonacci') {
-    timeComplexity = 'O(2ⁿ)';
-    spaceComplexity = 'O(N)';
-    complexityExplanation = 'Exponential recursion tree depth';
-  }
-
-  // Calculate complexity progress percentage (O(1)=20%, O(log N)=40%, O(N)=60%, O(N²)=80%, O(2ⁿ)=100%)
-  let progressPct = 60;
-  let meterColor = '#f59e0b';
-
-  if (timeComplexity.includes('1')) {
-    progressPct = 20;
-    meterColor = '#10b981';
-  } else if (timeComplexity.includes('log')) {
-    progressPct = 40;
-    meterColor = '#38bdf8';
-  } else if (timeComplexity.includes('N²')) {
-    progressPct = 85;
-    meterColor = '#f97316';
-  } else if (timeComplexity.includes('2')) {
-    progressPct = 100;
-    meterColor = '#ef4444';
-  }
+  const timeComplexity = backendMetrics ? backendMetrics.time_complexity : dynamicMetrics.time;
+  const spaceComplexity = backendMetrics ? backendMetrics.space_complexity : dynamicMetrics.space;
+  const complexityExplanation = backendMetrics ? backendMetrics.explanation : dynamicMetrics.desc;
+  const meterColor = dynamicMetrics.color;
+  const progressPct = dynamicMetrics.pct;
 
   return (
     <div className="minimal-card" style={{ padding: '14px 16px', marginBottom: '14px', background: 'var(--bg-surface)' }}>
@@ -48,7 +164,7 @@ export default function ComplexityPanel({ code, totalSteps, selectedPreset, exec
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '6px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Gauge size={15} color="var(--accent-red)" />
-          <h3 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', letterSpacing: '0.02em' }}>Algorithm Complexity</h3>
+          <h3 style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff', letterSpacing: '0.02em' }}>Live Code Complexity</h3>
         </div>
 
         {executionTimeMs !== undefined && executionTimeMs !== null && (
