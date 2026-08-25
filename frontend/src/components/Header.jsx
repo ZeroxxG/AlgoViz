@@ -83,7 +83,7 @@ export default function Header({
           className="btn-minimal"
           onClick={onPushToGithub}
           disabled={isPushing}
-          title="Commit & Push changes to GitHub repository"
+          title="Commit & Push changes to GitHub repository (origin/main)"
         >
           <GitBranch size={15} color={isPushing ? '#f59e0b' : 'var(--text-muted)'} />
           {isPushing ? 'Pushing...' : 'Push GitHub'}
@@ -93,7 +93,7 @@ export default function Header({
         <button
           className="btn-minimal"
           onClick={onOpenApiKeyModal}
-          title="Configure Gemini API Key"
+          title="Configure Gemini API Key for AI Code Tutor"
         >
           <Key size={15} color={apiKey ? '#10b981' : '#9ca3af'} />
           {apiKey ? 'Key Set' : 'Gemini Key'}
@@ -103,6 +103,7 @@ export default function Header({
         <button
           className="btn-minimal"
           onClick={onToggleAiDrawer}
+          title="Toggle Gemini AI Code Tutor Chat Drawer"
           style={{
             borderColor: 'rgba(255, 77, 77, 0.3)',
             background: 'var(--accent-red-subtle)',
@@ -118,6 +119,7 @@ export default function Header({
           className="btn-coral"
           onClick={onVisualize}
           disabled={isExecuting}
+          title="Run tracer on code (Shortcut: Ctrl+Enter)"
         >
           {isExecuting ? (
             <>
