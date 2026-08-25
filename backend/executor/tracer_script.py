@@ -13,6 +13,7 @@ import traceback
 import builtins
 
 MAX_STEPS = 500
+MAX_REPR_LEN = 150
 
 class PythonTutorMemoryTracer:
     def __init__(self):
