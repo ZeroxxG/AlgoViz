@@ -1,8 +1,7 @@
 import React from 'react';
-import { Gauge, Cpu, HardDrive, Zap } from 'lucide-react';
+import { Gauge, Cpu, HardDrive, Zap, TrendingUp } from 'lucide-react';
 
 export default function ComplexityPanel({ code, totalSteps, selectedPreset, executionTimeMs, backendMetrics }) {
-  // Infer or use backend calculated complexity
   let timeComplexity = backendMetrics ? backendMetrics.time_complexity : 'O(N)';
   let spaceComplexity = backendMetrics ? backendMetrics.space_complexity : 'O(1)';
   let complexityExplanation = backendMetrics ? backendMetrics.explanation : 'Linear time proportional to input size';
@@ -23,6 +22,24 @@ export default function ComplexityPanel({ code, totalSteps, selectedPreset, exec
     timeComplexity = 'O(2ⁿ)';
     spaceComplexity = 'O(N)';
     complexityExplanation = 'Exponential recursion tree depth';
+  }
+
+  // Calculate complexity progress percentage (O(1)=20%, O(log N)=40%, O(N)=60%, O(N²)=80%, O(2ⁿ)=100%)
+  let progressPct = 60;
+  let meterColor = '#f59e0b';
+
+  if (timeComplexity.includes('1')) {
+    progressPct = 20;
+    meterColor = '#10b981';
+  } else if (timeComplexity.includes('log')) {
+    progressPct = 40;
+    meterColor = '#38bdf8';
+  } else if (timeComplexity.includes('N²')) {
+    progressPct = 85;
+    meterColor = '#f97316';
+  } else if (timeComplexity.includes('2')) {
+    progressPct = 100;
+    meterColor = '#ef4444';
   }
 
   return (
@@ -50,6 +67,19 @@ export default function ComplexityPanel({ code, totalSteps, selectedPreset, exec
             <Zap size={12} color="#38bdf8" /> {executionTimeMs} ms ({totalSteps} steps)
           </span>
         )}
+      </div>
+
+      {/* Visual Complexity Meter Bar */}
+      <div style={{ marginBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '4px' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <TrendingUp size={12} color={meterColor} /> Scale: O(1) → O(2ⁿ)
+          </span>
+          <span style={{ color: meterColor, fontWeight: 700, fontFamily: 'var(--font-code)' }}>{timeComplexity}</span>
+        </div>
+        <div style={{ width: '100%', height: '6px', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', overflow: 'hidden' }}>
+          <div style={{ width: `${progressPct}%`, height: '100%', background: meterColor, borderRadius: '999px', transition: 'width 0.4s ease' }} />
+        </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
