@@ -123,13 +123,18 @@ export default function DsaPointerVisualizer({ stepData }) {
                     marginTop: '4px'
                   }}
                 >
-                  <span style={{ color: p.color.text, fontSize: '0.75rem', lineHeight: '1' }}>▲</span>
+                  <span style={{ color: p.color.text, fontSize: '0.78rem', lineHeight: '1' }}>▲</span>
                   <span style={{
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     fontWeight: 700,
                     color: p.color.text,
+                    background: p.color.bg,
+                    border: `1px solid ${p.color.border}`,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
                     fontFamily: 'var(--font-code)',
-                    marginTop: '2px'
+                    marginTop: '2px',
+                    boxShadow: `0 0 8px ${p.color.bg}`
                   }}>
                     {p.name}
                   </span>
