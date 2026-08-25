@@ -60,12 +60,14 @@ export default function Header({
           style={{
             background: 'var(--bg-dark)',
             color: 'var(--text-main)',
-            border: '1px solid var(--border-subtle)',
+            border: '1px solid rgba(255, 77, 77, 0.3)',
             borderRadius: '8px',
-            padding: '5px 10px',
+            padding: '6px 12px',
             fontSize: '0.82rem',
+            fontWeight: 600,
             outline: 'none',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
           }}
         >
           {PRESETS.map(p => (
