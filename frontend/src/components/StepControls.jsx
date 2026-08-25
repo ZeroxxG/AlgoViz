@@ -11,7 +11,8 @@ export default function StepControls({
   isPlaying,
   onTogglePlay,
   speed,
-  onSpeedChange
+  onSpeedChange,
+  onStepChange
 }) {
   const isFirst = currentStep <= 0;
   const isLast = currentStep >= totalSteps - 1;
@@ -41,88 +42,108 @@ export default function StepControls({
 
   return (
     <div className="minimal-card" style={{
-      padding: '8px 18px',
+      padding: '10px 18px',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      gap: '14px',
+      flexDirection: 'column',
+      gap: '8px',
       background: 'var(--bg-surface)',
       boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)'
     }}>
-      {/* Step Counter */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '120px' }}>
-        <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)' }}>
-          Step <span style={{ color: 'var(--accent-red)', fontSize: '0.95rem' }}>{totalSteps > 0 ? currentStep + 1 : 0}</span> / {totalSteps}
-        </span>
-      </div>
+      {/* Interactive Step Timeline Progress Bar */}
+      {totalSteps > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <input
+            type="range"
+            min="0"
+            max={Math.max(0, totalSteps - 1)}
+            value={currentStep}
+            onChange={(e) => onStepChange && onStepChange(Number(e.target.value))}
+            style={{
+              flex: 1,
+              height: '4px',
+              accentColor: 'var(--accent-red)',
+              cursor: 'pointer'
+            }}
+          />
+        </div>
+      )}
 
-      {/* Control Buttons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <button
-          className="btn-icon"
-          onClick={onFirst}
-          disabled={isFirst}
-          title="First Step"
-          style={{ opacity: isFirst ? 0.3 : 1 }}
-        >
-          <SkipBack size={16} />
-        </button>
+      {/* Main Control Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Step Counter */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '120px' }}>
+          <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-main)' }}>
+            Step <span style={{ color: 'var(--accent-red)', fontSize: '0.95rem' }}>{totalSteps > 0 ? currentStep + 1 : 0}</span> / {totalSteps}
+          </span>
+        </div>
 
-        <button
-          className="btn-minimal"
-          onClick={onPrev}
-          disabled={isFirst}
-          style={{ opacity: isFirst ? 0.3 : 1, padding: '5px 12px' }}
-        >
-          <ChevronLeft size={16} /> Prev
-        </button>
+        {/* Control Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <button
+            className="btn-icon"
+            onClick={onFirst}
+            disabled={isFirst}
+            title="First Step"
+            style={{ opacity: isFirst ? 0.3 : 1 }}
+          >
+            <SkipBack size={16} />
+          </button>
 
-        <button
-          className="btn-coral"
-          onClick={onTogglePlay}
-          disabled={totalSteps === 0}
-          style={{ padding: '5px 16px' }}
-        >
-          {isPlaying ? <Pause size={16} fill="white" /> : <Play size={16} fill="white" />}
-          {isPlaying ? 'Pause' : 'Play'}
-        </button>
+          <button
+            className="btn-minimal"
+            onClick={onPrev}
+            disabled={isFirst}
+            style={{ opacity: isFirst ? 0.3 : 1, padding: '5px 12px' }}
+          >
+            <ChevronLeft size={16} /> Prev
+          </button>
 
-        <button
-          className="btn-minimal"
-          onClick={onNext}
-          disabled={isLast}
-          style={{ opacity: isLast ? 0.3 : 1, padding: '5px 12px' }}
-        >
-          Next <ChevronRight size={16} />
-        </button>
+          <button
+            className="btn-coral"
+            onClick={onTogglePlay}
+            disabled={totalSteps === 0}
+            style={{ padding: '5px 16px' }}
+          >
+            {isPlaying ? <Pause size={16} fill="white" /> : <Play size={16} fill="white" />}
+            {isPlaying ? 'Pause' : 'Play'}
+          </button>
 
-        <button
-          className="btn-icon"
-          onClick={onLast}
-          disabled={isLast}
-          title="Last Step"
-          style={{ opacity: isLast ? 0.3 : 1 }}
-        >
-          <SkipForward size={16} />
-        </button>
-      </div>
+          <button
+            className="btn-minimal"
+            onClick={onNext}
+            disabled={isLast}
+            style={{ opacity: isLast ? 0.3 : 1, padding: '5px 12px' }}
+          >
+            Next <ChevronRight size={16} />
+          </button>
 
-      {/* Speed Slider */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <Gauge size={15} color="var(--text-muted)" />
-        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Speed:</span>
-        <input
-          type="range"
-          min="200"
-          max="2000"
-          step="100"
-          value={2200 - speed}
-          onChange={(e) => onSpeedChange(2200 - Number(e.target.value))}
-          style={{ width: '75px', accentColor: 'var(--accent-red)', cursor: 'pointer' }}
-        />
-        <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', width: '32px' }}>
-          {(1000 / speed).toFixed(1)}x
-        </span>
+          <button
+            className="btn-icon"
+            onClick={onLast}
+            disabled={isLast}
+            style={{ opacity: isLast ? 0.3 : 1 }}
+          >
+            <SkipForward size={16} />
+          </button>
+        </div>
+
+        {/* Speed Slider */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Gauge size={15} color="var(--text-muted)" />
+          <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>Speed:</span>
+          <input
+            type="range"
+            min="200"
+            max="2000"
+            step="100"
+            value={2200 - speed}
+            onChange={(e) => onSpeedChange(2200 - Number(e.target.value))}
+            style={{ width: '75px', accentColor: 'var(--accent-red)', cursor: 'pointer' }}
+          />
+          <span style={{ fontSize: '0.72rem', color: 'var(--text-dim)', width: '32px' }}>
+            {(1000 / speed).toFixed(1)}x
+          </span>
+        </div>
       </div>
     </div>
   );

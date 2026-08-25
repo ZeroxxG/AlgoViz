@@ -249,6 +249,7 @@ export default function App() {
           onTogglePlay={() => setIsPlaying(!isPlaying)}
           speed={speed}
           onSpeedChange={setSpeed}
+          onStepChange={(stepIdx) => setCurrentStep(stepIdx)}
         />
       </div>
 
