@@ -44,7 +44,7 @@ def execute_code(request):
     is_valid, validation_err = validate_python_code(code)
     if not is_valid:
         return Response(
-            {"steps": [], "error": f"Validation Error: {validation_err}"},
+            {"steps": [], "error": f"Validation Error: {validation_err}", "error_code": "VALIDATION_FAILED"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
