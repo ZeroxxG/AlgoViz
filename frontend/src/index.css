@@ -61,7 +61,7 @@ body {
 .minimal-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
+  border-radius: 12px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
