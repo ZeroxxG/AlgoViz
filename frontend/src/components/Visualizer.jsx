@@ -26,19 +26,19 @@ export default function Visualizer({ code, currentStep, steps, selectedPreset })
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>
               Execution Snapshot
             </span>
-            {stepData && (
-              <span style={{
-                fontSize: '0.72rem',
-                padding: '2px 8px',
-                borderRadius: '4px',
-                background: stepData.event === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'var(--accent-red-subtle)',
-                color: stepData.event === 'error' ? '#fca5a5' : 'var(--accent-red)',
-                border: `1px solid ${stepData.event === 'error' ? 'rgba(239,68,68,0.4)' : 'rgba(255,77,77,0.3)'}`
-              }}>
-                Line {stepData.line} ({stepData.event})
-              </span>
-            )}
-          </div>
+          {/* Runtime Error Exception Banner */}
+          {stepData && stepData.event === 'error' && (
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.15)',
+              borderBottom: '1px solid rgba(239, 68, 68, 0.4)',
+              color: '#fca5a5',
+              padding: '8px 12px',
+              fontSize: '0.8rem',
+              fontFamily: 'var(--font-code)'
+            }}>
+              ⚠️ <strong>{stepData.error_type || 'Runtime Exception'}:</strong> {stepData.error}
+            </div>
+          )}
 
           {/* Code View with Red Active Line Highlight */}
           <div style={{
