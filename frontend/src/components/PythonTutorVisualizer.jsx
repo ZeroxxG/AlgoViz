@@ -85,11 +85,23 @@ export default function PythonTutorVisualizer({ stepData }) {
     >
       {/* Console Output Bar */}
       <div className="minimal-card" style={{ padding: '10px 14px', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-          <Terminal size={14} color="var(--accent-red)" />
-          <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)' }}>
-            Print output (stdout)
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Terminal size={14} color="var(--accent-red)" />
+            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-muted)' }}>
+              Print output (stdout)
+            </span>
+          </div>
+          {stdout && (
+            <button
+              className="btn-minimal"
+              onClick={() => navigator.clipboard.writeText(stdout)}
+              style={{ fontSize: '0.7rem', padding: '2px 8px' }}
+              title="Copy output logs"
+            >
+              Copy Log
+            </button>
+          )}
         </div>
         <pre style={{
           background: '#040406',
