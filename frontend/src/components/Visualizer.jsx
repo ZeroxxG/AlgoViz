@@ -15,6 +15,8 @@ export default function Visualizer({ code, currentStep, steps, selectedPreset })
       {/* Left Column: Code Snapshot & Step Narrative Banner */}
       <div style={{ flex: '0 0 36%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div className="minimal-card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+          
+          {/* Snapshot Header */}
           <div style={{
             padding: '10px 14px',
             borderBottom: '1px solid var(--border-subtle)',
@@ -26,6 +28,20 @@ export default function Visualizer({ code, currentStep, steps, selectedPreset })
             <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-muted)' }}>
               Execution Snapshot
             </span>
+            {stepData && (
+              <span style={{
+                fontSize: '0.72rem',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                background: stepData.event === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'var(--accent-red-subtle)',
+                color: stepData.event === 'error' ? '#fca5a5' : 'var(--accent-red)',
+                border: `1px solid ${stepData.event === 'error' ? 'rgba(239,68,68,0.4)' : 'rgba(255,77,77,0.3)'}`
+              }}>
+                Line {stepData.line} ({stepData.event})
+              </span>
+            )}
+          </div>
+
           {/* Runtime Error Exception Banner */}
           {stepData && stepData.event === 'error' && (
             <div style={{
